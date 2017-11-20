@@ -80,21 +80,82 @@
               var contact = iterator.next();
               assert.equal(contact.firstName() , names[count][0]);
               assert.equal(contact.lastName() , names[count][1]);
-              console.log(contact);
               count++;
           }
       });
 
       QUnit.test("first entry tests", function (assert) {
-        assert.ok(false);
+          var contact = Contact.Contacts.instance().iterator().first();
+          var ligne = '#x' + contact.id() + ' > td';
+          assert.equal($(ligne+'#cellFirstName').html() , contact.firstName());
+          assert.equal($(ligne+'#cellLastName').html() , contact.lastName());
+          var dataTel = "";
+          var phones = contact.phones();
+          for(var idTel in phones) {
+              dataTel += phones[idTel].number();
+              if (phones[idTel].category() === Contact.PhoneCategory.PRO) {
+                  dataTel += '[PRO]';
+              } else {
+                  dataTel += '[PERSO]';
+              }
+              if (phones[idTel].type() === Contact.PhoneType.MOBILE) {
+                  dataTel += '[MOBILE]';
+              } else if (phones[idTel].type() === Contact.PhoneType.FAX) {
+                  dataTel += '[FAX]';
+              } else {
+                  dataTel += '[PHONE]';
+              }
+              if (idTel < contact.phones().length - 1) {
+                  dataTel += '/';
+              }
+          }
+          assert.equal($(ligne+'#cellPhones').html() , dataTel);
+          var dataMail = '';
+          for (var i = 0; i < contact.mails().length; ++i) {
+              var mail = contact.mails()[i];
+
+              dataMail += mail.address();
+              if (mail.category() === Contact.MailCategory.PRO) {
+                  dataMail += '[PRO]';
+              } else {
+                  dataMail += '[PERSO]';
+              }
+              if (i < contact.phones().length - 1) {
+                  dataMail += '/';
+              }
+          }
+          assert.equal($(ligne+'#cellMails').html() , dataMail);
+          var dataTags = '';
+          for (i = 0; i < contact.tags().length; ++i) {
+              dataTags += contact.tags()[i];
+              if (i < contact.tags().length - 1) {
+                  dataTags += '/';
+              }
+          }
+          assert.equal($(ligne+'#cellTags').html() , dataTags);
       });
 
       QUnit.test("remove contact tests", function (assert) {
-        assert.ok(false);
+          var contact = Contact.Contacts.instance().iterator().first();
+          $('#button_'+contact.id()).click();
+          var ligne = $('#x' + contact.id());
+          assert.ok( ligne.size() === 0 );
+          var newContact = Contact.Contacts.instance().iterator().first();
+          assert.ok( contact.id() !== newContact.id() );
+
       });
 
       QUnit.test("sort contact tests", function (assert) {
-        assert.ok(false);
+          var names = [['Eric', 'RAMAT'], ['Jacques', 'DURAND'],['Pierre', 'DUPONT'],['Jean', 'DUPOND']];
+          $('#button_sort').click();
+          var iterator = Contact.Contacts.instance().iterator();
+          while (iterator.hasNext()) {
+              var contact = iterator.next();
+              console.log(contact.firstName());
+              assert.equal(contact.firstName() , names[count][0]);
+              assert.equal(contact.lastName() , names[count][1]);
+              count++;
+          }
       });
     </script>
     <!-- END - Les tests -->
